@@ -10,7 +10,7 @@ const state = {
   lang: initialLang(),
   selected: new Set(["consonants"]),
   flashcard: false,
-  autoplay: false,
+  autoplay: true,
   showWylie: true,
   showThl: true,
   showDesc: true,
@@ -40,6 +40,8 @@ const el = {
   kThl: document.getElementById("kThl"),
   kDesc: document.getElementById("kDesc"),
   audioBtn: document.getElementById("audioBtn"),
+  audioRow: document.getElementById("audioRow"),
+  audioBtnLabel: document.getElementById("audioBtnLabel"),
   footerNote: document.getElementById("footerNote"),
   setList: document.getElementById("setList"),
   glyph: document.getElementById("glyph"),
@@ -86,6 +88,7 @@ function applyLanguage() {
   el.kDesc.textContent = t.kDesc;
   el.audioBtn.setAttribute("aria-label", t.audioLabel);
   el.audioBtn.title = t.audioLabel;
+  el.audioBtnLabel.textContent = t.audioBtnText;
   el.footerNote.innerHTML = t.footer;
 
   el.langSwitch.querySelectorAll("button").forEach(b => {
@@ -206,7 +209,7 @@ function solutionShown() {
 function updateAudioButton() {
   const c = state.current;
   const hasAudio = c && AUDIO[c.tb];
-  el.audioBtn.hidden = !(hasAudio && solutionShown());
+  el.audioRow.hidden = !(hasAudio && solutionShown());
 }
 
 // Play the current glyph's recording if autoplay is on and audio exists.

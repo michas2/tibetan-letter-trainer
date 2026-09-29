@@ -24,6 +24,7 @@ const UI = {
     kThl: "THL-Lautschrift",
     kDesc: "Aufbau",
     audioLabel: "Aussprache abspielen",
+    audioBtnText: "Aussprache",
     footer: 'Schrift: Noto Serif Tibetan (via Google Fonts). THL = vereinfachte Lautschrift der Tibetan &amp; Himalayan Library. Die Beschreibungen sind Lernhilfen, keine vollständige Grammatik.<br>Aussprache der Grundkonsonanten (🔊): © <a href="https://tibetan101.com/letters/" target="_blank" rel="noopener">tibetan101.com</a>.<br>Referenzen: <a href="https://de.wikipedia.org/wiki/Umschrift_nach_Wylie" target="_blank" rel="noopener">Umschrift nach Wylie</a> · <a href="https://de.wikipedia.org/wiki/THDL-Transkription" target="_blank" rel="noopener">THDL/THL-Transkription</a>'
   },
   en: {
@@ -49,6 +50,7 @@ const UI = {
     kThl: "THL phonetic",
     kDesc: "Composition",
     audioLabel: "Play pronunciation",
+    audioBtnText: "Pronunciation",
     footer: 'Font: Noto Serif Tibetan (via Google Fonts). THL = Tibetan &amp; Himalayan Library simplified phonetics. Descriptions are learning aids, not exhaustive grammar.<br>Root-consonant pronunciation audio (🔊): © <a href="https://tibetan101.com/letters/" target="_blank" rel="noopener">tibetan101.com</a>.<br>References: <a href="https://en.wikipedia.org/wiki/Wylie_transliteration" target="_blank" rel="noopener">Wylie transliteration</a> · <a href="https://en.wikipedia.org/wiki/THL_Simplified_Phonetic_Transcription" target="_blank" rel="noopener">THL Simplified Phonetics</a>'
   }
 };

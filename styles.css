@@ -155,18 +155,18 @@ header .sub { color: var(--muted); font-size: 14px; }
 .info .v.thl { color: var(--accent-2); }
 .info .v.desc { font-size: 15px; font-weight: 400; line-height: 1.5; }
 
-/* Audio (pronunciation) button — sits on the card, next to the glyph */
+/* Audio (pronunciation) button — a row below the info cells */
+.audio-row { grid-column: 1 / -1; }
+.audio-row[hidden] { display: none; }
 .audio-btn {
-  position: absolute; top: 14px; right: 16px;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 40px; height: 40px; padding: 0; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 8px 14px; line-height: 1;
   border: 1px solid var(--border); border-radius: 10px;
   background: var(--panel-2); color: var(--text);
-  font-size: 20px; cursor: pointer; transition: .15s;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s;
 }
 .audio-btn:hover { border-color: var(--accent); }
-.audio-btn.playing { border-color: var(--accent); background: var(--accent); }
-.audio-btn[hidden] { display: none; }
+.audio-btn.playing { border-color: var(--accent); background: var(--accent); color: #0f1220; }
 
 .reveal-hint {
   text-align: center; color: var(--muted); font-size: 14px;
