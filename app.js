@@ -191,35 +191,36 @@ function applyFont() {
   centerGlyph();
 }
 
-// Center the glyph by its actual ink box rather than the font's line box.
-// Tibetan fonts differ a lot in ascent/descent, which otherwise makes the
-// letter sit too high or low (or spill out). We measure the rendered ink via
-// canvas and translate the glyph so its ink midpoint matches the line-box
-// midpoint. Font-agnostic and works in all modern browsers.
-const _measureCanvas = document.createElement("canvas");
-const _measureCtx = _measureCanvas.getContext("2d");
-
+// Center the glyph by its actual rendered position, not font metrics.
+// Different Tibetan fonts place the glyph at different heights within the line
+// box, so we measure where the ink actually is on screen (via a Range over the
+// text) and translate the glyph so that box is centered in the card. This makes
+// no assumptions about a font's ascent/descent and works for stacked glyphs.
+// Deferred to the next frame so measurement happens after layout.
+let _centerRaf = 0;
 function centerGlyph() {
-  const ch = state.current && state.current.tb;
-  if (!ch || !_measureCtx) return;
-  const cs = getComputedStyle(el.glyph);
-  _measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-  _measureCtx.textBaseline = "alphabetic";
-  const m = _measureCtx.measureText(ch);
-  const asc = m.actualBoundingBoxAscent;
-  const desc = m.actualBoundingBoxDescent;
-  // If the browser can't report ink bounds, leave it to flex centering.
-  if (!isFinite(asc) || !isFinite(desc)) {
-    el.glyph.style.transform = "";
+  if (_centerRaf) cancelAnimationFrame(_centerRaf);
+  _centerRaf = requestAnimationFrame(_centerGlyphNow);
+}
+
+function _centerGlyphNow() {
+  _centerRaf = 0;
+  if (!el.glyph.firstChild) return;
+  // Clear any prior offset so we measure the natural position.
+  el.glyph.style.transform = "";
+  let inkRect;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(el.glyph);
+    inkRect = range.getBoundingClientRect();
+  } catch {
     return;
   }
-  // Line box (line-height:1) is centered on the em; its middle sits at
-  // (ascentMetric - descentMetric)/2 above baseline. We want the ink middle
-  // there instead. Shift by the difference between the two midpoints.
-  const fontPx = parseFloat(cs.fontSize);
-  const lineMid = fontPx / 2;          // middle of the em box above baseline (approx)
-  const inkMid = (asc - desc) / 2;     // middle of the ink above baseline
-  const shift = lineMid - inkMid;      // move glyph down by this to align middles
+  if (!inkRect || !inkRect.height) return;
+  const cardRect = el.card.getBoundingClientRect();
+  const cardCenter = cardRect.top + cardRect.height / 2;
+  const inkCenter = inkRect.top + inkRect.height / 2;
+  const shift = cardCenter - inkCenter; // move glyph down by this to center ink
   el.glyph.style.transform = `translateY(${shift.toFixed(1)}px)`;
 }
 
