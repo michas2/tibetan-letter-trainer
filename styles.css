@@ -149,17 +149,20 @@ header .sub { color: var(--muted); font-size: 14px; }
 /* Main card */
 .stage { display: flex; flex-direction: column; gap: 20px; }
 .card {
-  position: relative; min-height: 340px;
+  position: relative; min-height: 360px;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, var(--panel) 0%, #14182c 100%);
   border: 1px solid var(--border); border-radius: var(--radius);
   padding: 30px;
 }
 .glyph {
-  font-size: clamp(120px, 22vw, 240px);
+  font-size: clamp(120px, 22vw, 220px);
   line-height: 1;
   color: #fff;
   text-shadow: 0 6px 30px rgba(124,156,255,.25);
+  /* Vertical offset is set from JS to center the actual glyph ink, which
+     neutralizes the differing ascent/descent metrics across Tibetan fonts. */
+  will-change: transform;
 }
 .badge-set {
   position: absolute; top: 14px; left: 16px;

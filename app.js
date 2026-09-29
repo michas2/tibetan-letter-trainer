@@ -188,6 +188,39 @@ function nextLetter() {
 function applyFont() {
   Object.values(FONTS).forEach(cls => el.glyph.classList.remove(cls));
   el.glyph.classList.add(FONTS[state.font]);
+  centerGlyph();
+}
+
+// Center the glyph by its actual ink box rather than the font's line box.
+// Tibetan fonts differ a lot in ascent/descent, which otherwise makes the
+// letter sit too high or low (or spill out). We measure the rendered ink via
+// canvas and translate the glyph so its ink midpoint matches the line-box
+// midpoint. Font-agnostic and works in all modern browsers.
+const _measureCanvas = document.createElement("canvas");
+const _measureCtx = _measureCanvas.getContext("2d");
+
+function centerGlyph() {
+  const ch = state.current && state.current.tb;
+  if (!ch || !_measureCtx) return;
+  const cs = getComputedStyle(el.glyph);
+  _measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  _measureCtx.textBaseline = "alphabetic";
+  const m = _measureCtx.measureText(ch);
+  const asc = m.actualBoundingBoxAscent;
+  const desc = m.actualBoundingBoxDescent;
+  // If the browser can't report ink bounds, leave it to flex centering.
+  if (!isFinite(asc) || !isFinite(desc)) {
+    el.glyph.style.transform = "";
+    return;
+  }
+  // Line box (line-height:1) is centered on the em; its middle sits at
+  // (ascentMetric - descentMetric)/2 above baseline. We want the ink middle
+  // there instead. Shift by the difference between the two midpoints.
+  const fontPx = parseFloat(cs.fontSize);
+  const lineMid = fontPx / 2;          // middle of the em box above baseline (approx)
+  const inkMid = (asc - desc) / 2;     // middle of the ink above baseline
+  const shift = lineMid - inkMid;      // move glyph down by this to align middles
+  el.glyph.style.transform = `translateY(${shift.toFixed(1)}px)`;
 }
 
 /* ---------- Rendering ---------- */
@@ -206,6 +239,7 @@ function render() {
   applyFlashcardState();
   updateAudioButton();
   maybeAutoplay();
+  centerGlyph();
 }
 
 // Show/hide the Wylie / THL / composition cells per their toggles.
@@ -330,4 +364,15 @@ buildSetList();
 applyLanguage();
 applyFont();
 nextLetter();
+
+// Re-center once webfonts have loaded (metrics change from fallback to real
+// font) and whenever the viewport changes (font-size is viewport-relative).
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(centerGlyph);
+}
+let _resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(centerGlyph, 100);
+});
 })();
