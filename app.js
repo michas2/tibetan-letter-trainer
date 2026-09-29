@@ -1,104 +1,121 @@
-// Application logic. Depends on i18n.js (UI, DEFAULT_LANG) and data.js (SETS).
+// Application logic. Depends on i18n.js (UI, DEFAULT_LANG) and data.js (SETS, AUDIO).
+// Wrapped in an IIFE so helpers like `$` don't leak into / collide with globals.
+(function () {
+"use strict";
+
+/* ---------- Small DOM helpers ---------- */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const byId = id => document.getElementById(id);
+
+/* ---------- Persistence ---------- */
+const STORAGE_KEY = "tlt_state";
+
+// Load persisted user choices, tolerating older/partial/corrupt data.
+function loadPersisted() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const data = JSON.parse(raw);
+    return data && typeof data === "object" ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePersisted() {
+  const data = {
+    lang: state.lang,
+    selected: [...state.selected],
+    flashcard: state.flashcard,
+    autoplay: state.autoplay,
+    showWylie: state.showWylie,
+    showThl: state.showThl,
+    showDesc: state.showDesc
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /* ignore quota / privacy-mode errors */
+  }
+}
+
+/* ---------- State ---------- */
+const persisted = loadPersisted();
 
 function initialLang() {
-  const saved = localStorage.getItem("tlt_lang");
-  if (saved === "de" || saved === "en") return saved;
-  return DEFAULT_LANG;
+  const l = persisted.lang;
+  return l === "de" || l === "en" ? l : DEFAULT_LANG;
+}
+
+function initialSelected() {
+  const sel = Array.isArray(persisted.selected)
+    ? persisted.selected.filter(k => k in SETS)
+    : [];
+  return new Set(sel.length ? sel : ["consonants"]);
 }
 
 const state = {
   lang: initialLang(),
-  selected: new Set(["consonants"]),
-  flashcard: false,
-  autoplay: true,
-  showWylie: true,
-  showThl: true,
-  showDesc: true,
+  selected: initialSelected(),
+  flashcard: persisted.flashcard ?? false,
+  autoplay: persisted.autoplay ?? true,
+  showWylie: persisted.showWylie ?? true,
+  showThl: persisted.showThl ?? true,
+  showDesc: persisted.showDesc ?? true,
   current: null,
   revealed: true
 };
 
+/* ---------- Stable element references ---------- */
 const el = {
-  appTitle: document.getElementById("appTitle"),
-  appSubtitle: document.getElementById("appSubtitle"),
-  kbdHint: document.getElementById("kbdHint"),
-  setsHeading: document.getElementById("setsHeading"),
-  optionsHeading: document.getElementById("optionsHeading"),
-  lblFlashcard: document.getElementById("lblFlashcard"),
-  hintFlashcard: document.getElementById("hintFlashcard"),
-  lblAutoplay: document.getElementById("lblAutoplay"),
-  hintAutoplay: document.getElementById("hintAutoplay"),
-  lblWylie: document.getElementById("lblWylie"),
-  hintWylie: document.getElementById("hintWylie"),
-  lblThl: document.getElementById("lblThl"),
-  hintThl: document.getElementById("hintThl"),
-  lblDesc: document.getElementById("lblDesc"),
-  hintDesc: document.getElementById("hintDesc"),
-  nextBtn: document.getElementById("nextBtn"),
-  revealHint: document.getElementById("revealHint"),
-  kWylie: document.getElementById("kWylie"),
-  kThl: document.getElementById("kThl"),
-  kDesc: document.getElementById("kDesc"),
-  audioBtn: document.getElementById("audioBtn"),
-  audioRow: document.getElementById("audioRow"),
-  audioBtnLabel: document.getElementById("audioBtnLabel"),
-  footerNote: document.getElementById("footerNote"),
-  setList: document.getElementById("setList"),
-  glyph: document.getElementById("glyph"),
-  badgeSet: document.getElementById("badgeSet"),
-  info: document.getElementById("info"),
-  valWylie: document.getElementById("valWylie"),
-  valThl: document.getElementById("valThl"),
-  valDesc: document.getElementById("valDesc"),
-  cellWylie: document.getElementById("cellWylie"),
-  cellThl: document.getElementById("cellThl"),
-  cellDesc: document.getElementById("cellDesc"),
-  flashcardToggle: document.getElementById("flashcardToggle"),
-  autoplayToggle: document.getElementById("autoplayToggle"),
-  wylieToggle: document.getElementById("wylieToggle"),
-  thlToggle: document.getElementById("thlToggle"),
-  descToggle: document.getElementById("descToggle"),
-  langSwitch: document.getElementById("langSwitch")
+  langSwitch: byId("langSwitch"),
+  setList: byId("setList"),
+  nextBtn: byId("nextBtn"),
+  card: $(".card"),
+  glyph: byId("glyph"),
+  badgeSet: byId("badgeSet"),
+  info: byId("info"),
+  revealHint: byId("revealHint"),
+  valWylie: byId("valWylie"),
+  valThl: byId("valThl"),
+  valDesc: byId("valDesc"),
+  audioRow: byId("audioRow"),
+  audioBtn: byId("audioBtn")
 };
 
-// Apply all static UI strings for the current language.
+/* ---------- i18n ---------- */
+// Apply all static UI strings for the current language by scanning the DOM
+// for data-i18n / data-i18n-html / data-i18n-attr markers. Adding a new UI
+// string means adding one HTML attribute + one key in i18n.js — nothing here.
 function applyLanguage() {
   const t = UI[state.lang];
   document.documentElement.lang = state.lang;
   document.title = t.docTitle;
-  el.appTitle.innerHTML = t.title;
-  el.appSubtitle.textContent = t.subtitle;
-  el.kbdHint.textContent = t.kbdHint;
-  el.setsHeading.textContent = t.setsHeading;
-  el.optionsHeading.textContent = t.optionsHeading;
-  el.lblFlashcard.textContent = t.lblFlashcard;
-  el.hintFlashcard.textContent = t.hintFlashcard;
-  el.lblAutoplay.textContent = t.lblAutoplay;
-  el.hintAutoplay.textContent = t.hintAutoplay;
-  el.lblWylie.textContent = t.lblWylie;
-  el.hintWylie.textContent = t.hintWylie;
-  el.lblThl.textContent = t.lblThl;
-  el.hintThl.textContent = t.hintThl;
-  el.lblDesc.textContent = t.lblDesc;
-  el.hintDesc.textContent = t.hintDesc;
-  el.nextBtn.textContent = t.nextBtn;
-  el.revealHint.textContent = t.revealHint;
-  el.kWylie.textContent = t.kWylie;
-  el.kThl.textContent = t.kThl;
-  el.kDesc.textContent = t.kDesc;
-  el.audioBtn.setAttribute("aria-label", t.audioLabel);
-  el.audioBtn.title = t.audioLabel;
-  el.audioBtnLabel.textContent = t.audioBtnText;
-  el.footerNote.innerHTML = t.footer;
 
-  el.langSwitch.querySelectorAll("button").forEach(b => {
+  $$("[data-i18n]").forEach(node => {
+    node.textContent = t[node.dataset.i18n];
+  });
+  $$("[data-i18n-html]").forEach(node => {
+    node.innerHTML = t[node.dataset.i18nHtml];
+  });
+  // data-i18n-attr="attr:key,attr:key" — set attributes from UI strings.
+  $$("[data-i18n-attr]").forEach(node => {
+    node.dataset.i18nAttr.split(",").forEach(pair => {
+      const [attr, key] = pair.split(":");
+      node.setAttribute(attr.trim(), t[key.trim()]);
+    });
+  });
+
+  $$("button", el.langSwitch).forEach(b => {
     b.classList.toggle("active", b.dataset.lang === state.lang);
   });
 
   refreshSetLabels();
 }
 
-// Build the set checkboxes once; labels updated on language change.
+/* ---------- Letter sets ---------- */
+// Build the set checkboxes once; labels are refreshed on language change.
 function buildSetList() {
   el.setList.innerHTML = "";
   Object.entries(SETS).forEach(([key, set]) => {
@@ -109,14 +126,16 @@ function buildSetList() {
       <input type="checkbox" value="${key}" ${state.selected.has(key) ? "checked" : ""} />
       <span class="name">${set.label[state.lang]}</span>
       <span class="count">${set.data.length}</span>`;
-    const cb = row.querySelector("input");
+    const cb = $("input", row);
     cb.addEventListener("change", () => {
       if (cb.checked) state.selected.add(key);
       else state.selected.delete(key);
+      // Never allow an empty selection; re-check this one.
       if (state.selected.size === 0) {
         cb.checked = true;
         state.selected.add(key);
       }
+      savePersisted();
       nextLetter();
     });
     el.setList.appendChild(row);
@@ -124,9 +143,8 @@ function buildSetList() {
 }
 
 function refreshSetLabels() {
-  el.setList.querySelectorAll(".set-row").forEach(row => {
-    const key = row.dataset.key;
-    row.querySelector(".name").textContent = SETS[key].label[state.lang];
+  $$(".set-row", el.setList).forEach(row => {
+    $(".name", row).textContent = SETS[row.dataset.key].label[state.lang];
   });
 }
 
@@ -144,49 +162,58 @@ function nextLetter() {
   let pick;
   do {
     pick = pool[Math.floor(Math.random() * pool.length)];
-  } while (pool.length > 1 && state.current && pick.tb === state.current.tb && pick._setKey === state.current._setKey);
+  } while (
+    pool.length > 1 &&
+    state.current &&
+    pick.tb === state.current.tb &&
+    pick._setKey === state.current._setKey
+  );
   state.current = pick;
   render();
 }
 
+/* ---------- Rendering ---------- */
 function render() {
   const c = state.current;
   if (!c) return;
   stopAudio();
+
   el.glyph.textContent = c.tb;
   el.badgeSet.textContent = SETS[c._setKey].label[state.lang];
-
   el.valWylie.textContent = c.wylie;
   el.valThl.textContent = c.thl;
   el.valDesc.textContent = c.desc[state.lang];
 
-  el.cellWylie.style.display = state.showWylie ? "" : "none";
-  el.cellThl.style.display = state.showThl ? "" : "none";
-  el.cellDesc.style.display = state.showDesc ? "" : "none";
-
-  if (state.flashcard) {
-    state.revealed = false;
-    el.info.classList.add("hidden");
-    el.revealHint.classList.remove("hidden");
-  } else {
-    state.revealed = true;
-    el.info.classList.remove("hidden");
-    el.revealHint.classList.add("hidden");
-  }
+  applyFieldVisibility();
+  applyFlashcardState();
   updateAudioButton();
   maybeAutoplay();
+}
+
+// Show/hide the Wylie / THL / composition cells per their toggles.
+function applyFieldVisibility() {
+  $$("[data-field]").forEach(cell => {
+    cell.classList.toggle("is-hidden", !state[cell.dataset.field]);
+  });
+}
+
+// In flashcard mode the info is hidden until revealed; otherwise always shown.
+function applyFlashcardState() {
+  state.revealed = !state.flashcard;
+  el.info.classList.toggle("is-hidden", state.flashcard);
+  el.revealHint.classList.toggle("is-hidden", !state.flashcard);
 }
 
 function reveal() {
-  if (!state.flashcard) return;
+  if (!state.flashcard || state.revealed) return;
   state.revealed = true;
-  el.info.classList.remove("hidden");
-  el.revealHint.classList.add("hidden");
+  el.info.classList.remove("is-hidden");
+  el.revealHint.classList.add("is-hidden");
   updateAudioButton();
   maybeAutoplay();
 }
 
-/* Audio playback (hotlinked; consonants only) */
+/* ---------- Audio (hotlinked; consonants only) ---------- */
 let currentAudio = null;
 
 function stopAudio() {
@@ -197,71 +224,67 @@ function stopAudio() {
   el.audioBtn.classList.remove("playing");
 }
 
-// Whether the "solution" (info) is currently shown: always in normal mode,
-// or after reveal in flashcard mode.
+// The "solution" is shown in normal mode always, or after reveal in flashcard mode.
 function solutionShown() {
   return !state.flashcard || state.revealed;
 }
 
-// Show the audio button whenever the current glyph has a recording and the
-// solution is visible. The button lives on the card, independent of the
-// Wylie/THL/composition field toggles.
+// Show the audio row only when the current glyph has a recording and the
+// solution is visible.
 function updateAudioButton() {
-  const c = state.current;
-  const hasAudio = c && AUDIO[c.tb];
-  el.audioRow.hidden = !(hasAudio && solutionShown());
+  const hasAudio = state.current && AUDIO[state.current.tb];
+  el.audioRow.classList.toggle("is-hidden", !(hasAudio && solutionShown()));
 }
 
-// Play the current glyph's recording if autoplay is on and audio exists.
+// Auto-play when enabled and the current glyph has a recording that is showing.
+// Note: browsers block playback until the first user gesture, so the initial
+// page-load call may be silently rejected — playback works from then on.
 function maybeAutoplay() {
-  if (!state.autoplay) return;
-  const c = state.current;
-  if (c && AUDIO[c.tb] && solutionShown()) playAudio();
+  if (state.autoplay && state.current && AUDIO[state.current.tb] && solutionShown()) {
+    playAudio();
+  }
 }
 
 function playAudio() {
-  const c = state.current;
-  const url = c && AUDIO[c.tb];
+  const url = state.current && AUDIO[state.current.tb];
   if (!url) return;
   stopAudio();
   const audio = new Audio(url);
   currentAudio = audio;
   el.audioBtn.classList.add("playing");
-  audio.addEventListener("ended", () => {
-    if (currentAudio === audio) stopAudio();
-  });
-  audio.addEventListener("error", () => {
-    if (currentAudio === audio) stopAudio();
-  });
-  audio.play().catch(() => {
-    if (currentAudio === audio) stopAudio();
-  });
+  const done = () => { if (currentAudio === audio) stopAudio(); };
+  audio.addEventListener("ended", done);
+  audio.addEventListener("error", done);
+  audio.play().catch(done);
 }
 
-/* Events */
+/* ---------- Events ---------- */
 el.nextBtn.addEventListener("click", nextLetter);
 
-el.flashcardToggle.addEventListener("change", e => { state.flashcard = e.target.checked; render(); });
-el.autoplayToggle.addEventListener("change", e => { state.autoplay = e.target.checked; });
-el.wylieToggle.addEventListener("change", e => { state.showWylie = e.target.checked; render(); });
-el.thlToggle.addEventListener("change", e => { state.showThl = e.target.checked; render(); });
-el.descToggle.addEventListener("change", e => { state.showDesc = e.target.checked; render(); });
-
-el.audioBtn.addEventListener("click", e => {
-  e.stopPropagation();
-  playAudio();
+// Wire every boolean option checkbox from its data-toggle name.
+$$("[data-toggle]").forEach(cb => {
+  const key = cb.dataset.toggle;
+  cb.checked = state[key];
+  cb.addEventListener("change", () => {
+    state[key] = cb.checked;
+    savePersisted();
+    // Autoplay only changes future playback; the rest affect what is shown.
+    if (key !== "autoplay") render();
+  });
 });
 
-document.querySelector(".card").addEventListener("click", () => {
+el.audioBtn.addEventListener("click", playAudio);
+
+el.card.addEventListener("click", () => {
   if (state.flashcard && !state.revealed) reveal();
   else nextLetter();
 });
 el.revealHint.addEventListener("click", reveal);
 
-el.langSwitch.querySelectorAll("button").forEach(btn => {
+$$("button", el.langSwitch).forEach(btn => {
   btn.addEventListener("click", () => {
     state.lang = btn.dataset.lang;
-    localStorage.setItem("tlt_lang", state.lang);
+    savePersisted();
     applyLanguage();
     render();
   });
@@ -277,7 +300,8 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// Init
+/* ---------- Init ---------- */
 buildSetList();
 applyLanguage();
 nextLetter();
+})();

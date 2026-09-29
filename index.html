@@ -15,11 +15,11 @@
 <body>
   <header>
     <div>
-      <h1 id="appTitle">Tibetisch-Trainer <span class="tibetan">བོད་ཡིག</span></h1>
-      <div class="sub" id="appSubtitle">Lerne die tibetische Schrift — ein Zeichen nach dem anderen.</div>
+      <h1 data-i18n-html="title">Tibetisch-Trainer <span class="tibetan">བོད་ཡིག</span></h1>
+      <div class="sub" data-i18n="subtitle">Lerne die tibetische Schrift — ein Zeichen nach dem anderen.</div>
     </div>
     <div class="head-right">
-      <div class="sub" id="kbdHint">Leertaste oder → für weiter</div>
+      <div class="sub" data-i18n="kbdHint">Leertaste oder → für weiter</div>
       <div class="lang" id="langSwitch">
         <button data-lang="de">DE</button>
         <button data-lang="en">EN</button>
@@ -29,64 +29,64 @@
 
   <div class="layout">
     <aside class="panel">
-      <h2 id="setsHeading">Zeichensätze</h2>
+      <h2 data-i18n="setsHeading">Zeichensätze</h2>
       <div class="set-list" id="setList"></div>
 
       <div style="margin-top:16px">
-        <h2 id="optionsHeading">Optionen</h2>
+        <h2 data-i18n="optionsHeading">Optionen</h2>
         <div class="toggle-row">
           <div>
-            <div class="label" id="lblFlashcard">Karteikarten-Modus</div>
-            <div class="hint" id="hintFlashcard">Infos ausblenden bis zum Aufdecken</div>
+            <div class="label" data-i18n="lblFlashcard">Karteikarten-Modus</div>
+            <div class="hint" data-i18n="hintFlashcard">Infos ausblenden bis zum Aufdecken</div>
           </div>
           <label class="switch">
-            <input type="checkbox" id="flashcardToggle" />
+            <input type="checkbox" data-toggle="flashcard" />
             <span class="slider"></span>
           </label>
         </div>
         <div class="toggle-row">
           <div>
-            <div class="label" id="lblAutoplay">Automatisch abspielen</div>
-            <div class="hint" id="hintAutoplay">Aussprache beim Aufdecken abspielen</div>
+            <div class="label" data-i18n="lblAutoplay">Automatisch abspielen</div>
+            <div class="hint" data-i18n="hintAutoplay">Aussprache beim Aufdecken abspielen</div>
           </div>
           <label class="switch">
-            <input type="checkbox" id="autoplayToggle" checked />
+            <input type="checkbox" data-toggle="autoplay" checked />
             <span class="slider"></span>
           </label>
         </div>
         <div class="toggle-row">
           <div>
-            <div class="label" id="lblWylie">Wylie anzeigen</div>
-            <div class="hint" id="hintWylie">Transliteration</div>
+            <div class="label" data-i18n="lblWylie">Wylie anzeigen</div>
+            <div class="hint" data-i18n="hintWylie">Transliteration</div>
           </div>
           <label class="switch">
-            <input type="checkbox" id="wylieToggle" checked />
+            <input type="checkbox" data-toggle="showWylie" checked />
             <span class="slider"></span>
           </label>
         </div>
         <div class="toggle-row">
           <div>
-            <div class="label" id="lblThl">THL-Lautschrift anzeigen</div>
-            <div class="hint" id="hintThl">Ungefähre Aussprache</div>
+            <div class="label" data-i18n="lblThl">THL-Lautschrift anzeigen</div>
+            <div class="hint" data-i18n="hintThl">Ungefähre Aussprache</div>
           </div>
           <label class="switch">
-            <input type="checkbox" id="thlToggle" checked />
+            <input type="checkbox" data-toggle="showThl" checked />
             <span class="slider"></span>
           </label>
         </div>
         <div class="toggle-row">
           <div>
-            <div class="label" id="lblDesc">Aufbau anzeigen</div>
-            <div class="hint" id="hintDesc">Wie es gebildet wird</div>
+            <div class="label" data-i18n="lblDesc">Aufbau anzeigen</div>
+            <div class="hint" data-i18n="hintDesc">Wie es gebildet wird</div>
           </div>
           <label class="switch">
-            <input type="checkbox" id="descToggle" checked />
+            <input type="checkbox" data-toggle="showDesc" checked />
             <span class="slider"></span>
           </label>
         </div>
       </div>
 
-      <button class="btn" id="nextBtn">Nächstes Zeichen →</button>
+      <button class="btn" id="nextBtn" data-i18n="nextBtn">Nächstes Zeichen →</button>
     </aside>
 
     <main class="stage">
@@ -95,32 +95,32 @@
         <div class="glyph tibetan" id="glyph">ཀ</div>
       </div>
 
-      <div class="reveal-hint hidden" id="revealHint">Tippen oder Leertaste zum Aufdecken</div>
+      <div class="reveal-hint is-hidden" id="revealHint" data-i18n="revealHint">Tippen oder Leertaste zum Aufdecken</div>
 
       <div class="info" id="info">
-        <div class="cell" id="cellWylie">
-          <div class="k" id="kWylie">Wylie</div>
+        <div class="cell" data-field="showWylie">
+          <div class="k" data-i18n="kWylie">Wylie</div>
           <div class="v wylie" id="valWylie">ka</div>
         </div>
-        <div class="cell" id="cellThl">
-          <div class="k" id="kThl">THL-Lautschrift</div>
+        <div class="cell" data-field="showThl">
+          <div class="k" data-i18n="kThl">THL-Lautschrift</div>
           <div class="v thl" id="valThl">ka</div>
         </div>
-        <div class="cell full" id="cellDesc">
-          <div class="k" id="kDesc">Aufbau</div>
+        <div class="cell full" data-field="showDesc">
+          <div class="k" data-i18n="kDesc">Aufbau</div>
           <div class="v desc" id="valDesc">—</div>
         </div>
-        <div class="audio-row full" id="audioRow" hidden>
-          <button type="button" id="audioBtn" class="audio-btn" aria-label="Aussprache abspielen">
+        <div class="audio-row full is-hidden" id="audioRow">
+          <button type="button" id="audioBtn" class="audio-btn" data-i18n-attr="aria-label:audioLabel,title:audioLabel">
             <span aria-hidden="true">🔊</span>
-            <span id="audioBtnLabel">Aussprache</span>
+            <span data-i18n="audioBtnText">Aussprache</span>
           </button>
         </div>
       </div>
     </main>
   </div>
 
-  <div class="footer-note" id="footerNote"></div>
+  <div class="footer-note" data-i18n-html="footer"></div>
 
   <!-- Order matters: i18n + data define globals used by app.js -->
   <script src="i18n.js"></script>

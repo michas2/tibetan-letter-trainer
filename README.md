@@ -51,6 +51,14 @@ Just open the site, or clone and open `index.html` in any modern browser — the
 To add a language, add a key to `UI` in `i18n.js` and provide matching `label`/`desc`
 translations in `data.js`.
 
+UI text is wired declaratively: elements carry `data-i18n` (textContent),
+`data-i18n-html` (innerHTML), or `data-i18n-attr="attr:key,…"` (attributes), and
+`applyLanguage()` fills them from `UI`. Option checkboxes are wired by a `data-toggle`
+name that matches a `state` key, and info cells by a `data-field` name.
+
+User choices (language, selected sets, flashcard/autoplay, and the field toggles) are
+persisted to `localStorage` under the key `tlt_state` and restored on reload.
+
 ## Notes & caveats
 
 - The **THL phonetic** column is simplified: it approximates the isolated-syllable

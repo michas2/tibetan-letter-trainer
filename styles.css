@@ -139,7 +139,9 @@ header .sub { color: var(--muted); font-size: 14px; }
 
 .info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 560px) { .info { grid-template-columns: 1fr; } }
-.info.hidden { display: none; }
+
+/* Generic visibility utility, toggled from JS via classList. */
+.is-hidden { display: none !important; }
 
 .info .cell {
   background: var(--panel); border: 1px solid var(--border);
@@ -157,7 +159,6 @@ header .sub { color: var(--muted); font-size: 14px; }
 
 /* Audio (pronunciation) button — a row below the info cells */
 .audio-row { grid-column: 1 / -1; }
-.audio-row[hidden] { display: none; }
 .audio-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 8px 14px; line-height: 1;
@@ -173,7 +174,6 @@ header .sub { color: var(--muted); font-size: 14px; }
   padding: 10px; border: 1px dashed var(--border); border-radius: 12px;
   cursor: pointer;
 }
-.reveal-hint.hidden { display: none; }
 
 .footer-note {
   max-width: 1100px; margin: 20px auto 0; color: var(--muted);
