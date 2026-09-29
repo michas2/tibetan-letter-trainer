@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tibetan Letter Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Noto+Serif+Tibetan:wght@400;600&family=Inter:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #0f1220;
+    --panel: #191d33;
+    --panel-2: #212643;
+    --accent: #7c9cff;
+    --accent-2: #ffc16b;
+    --text: #e7e9f5;
+    --muted: #9aa0c0;
+    --border: #2c3255;
+    --good: #5fd08a;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: radial-gradient(1200px 800px at 70% -10%, #232a4d 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .tibetan {
+    font-family: "Noto Serif Tibetan", "Noto Sans Tibetan", "Jomolhari",
+      "Tibetan Machine Uni", serif;
+  }
+  header {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { font-size: 22px; margin: 0; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 14px; }
+
+  .layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+
+  /* Sidebar controls */
+  .set-list { display: flex; flex-direction: column; gap: 8px; }
+  .set-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 10px;
+    background: var(--panel-2); cursor: pointer;
+    border: 1px solid transparent; user-select: none;
+  }
+  .set-row:hover { border-color: var(--border); }
+  .set-row input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .set-row .name { font-size: 14px; }
+  .set-row .count { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-top: 1px solid var(--border);
+  }
+  .toggle-row:first-of-type { border-top: none; }
+  .toggle-row .label { font-size: 14px; }
+  .toggle-row .hint { font-size: 12px; color: var(--muted); }
+
+  .switch { position: relative; width: 46px; height: 26px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 999px; transition: .2s; cursor: pointer;
+  }
+  .slider::before {
+    content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px;
+    background: var(--muted); border-radius: 50%; transition: .2s;
+  }
+  .switch input:checked + .slider { background: var(--accent); border-color: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(20px); background: #fff; }
+
+  .btn {
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--accent); color: #0f1220; font-weight: 600; font-size: 15px;
+    cursor: pointer; transition: .15s; margin-top: 6px;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.secondary { background: var(--panel-2); color: var(--text); }
+
+  /* Main card */
+  .stage { display: flex; flex-direction: column; gap: 20px; }
+  .card {
+    position: relative; min-height: 340px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, var(--panel) 0%, #14182c 100%);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 30px;
+  }
+  .glyph {
+    font-size: clamp(120px, 22vw, 240px);
+    line-height: 1.4;
+    color: #fff;
+    text-shadow: 0 6px 30px rgba(124,156,255,.25);
+  }
+  .badge-set {
+    position: absolute; top: 14px; left: 16px;
+    font-size: 12px; color: var(--muted);
+    background: var(--panel-2); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 999px;
+  }
+
+  .info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .info { grid-template-columns: 1fr; } }
+  .info.hidden { display: none; }
+
+  .info .cell {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+  }
+  .info .cell.full { grid-column: 1 / -1; }
+  .info .k {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .info .v { font-size: 18px; font-weight: 600; }
+  .info .v.wylie { color: var(--accent); }
+  .info .v.thl { color: var(--accent-2); }
+  .info .v.desc { font-size: 15px; font-weight: 400; line-height: 1.5; }
+
+  .reveal-hint {
+    text-align: center; color: var(--muted); font-size: 14px;
+    padding: 10px; border: 1px dashed var(--border); border-radius: 12px;
+    cursor: pointer;
+  }
+  .reveal-hint.hidden { display: none; }
+
+  .footer-note {
+    max-width: 1100px; margin: 20px auto 0; color: var(--muted);
+    font-size: 12px; text-align: center;
+  }
+  kbd {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1px 6px; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Tibetan Letter Trainer <span class="tibetan">བོད་ཡིག</span></h1>
+      <div class="sub">Learn the Tibetan script — one glyph at a time.</div>
+    </div>
+    <div class="sub">Press <kbd>Space</kbd> or <kbd>→</kbd> for next</div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>Letter sets</h2>
+      <div class="set-list" id="setList"></div>
+
+      <div style="margin-top:16px">
+        <h2>Options</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Flashcard mode</div>
+            <div class="hint">Hide info until revealed</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="flashcardToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Show Wylie</div>
+            <div class="hint">Transliteration</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="wylieToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Show THL phonetics</div>
+            <div class="hint">Approx. pronunciation</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="thlToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="label">Show composition</div>
+            <div class="hint">How it is built</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="descToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn" id="nextBtn">Next letter →</button>
+    </aside>
+
+    <main class="stage">
+      <div class="card">
+        <div class="badge-set" id="badgeSet">—</div>
+        <div class="glyph tibetan" id="glyph">ཀ</div>
+      </div>
+
+      <div class="reveal-hint hidden" id="revealHint">Tap or press Space to reveal info</div>
+
+      <div class="info" id="info">
+        <div class="cell" id="cellWylie">
+          <div class="k">Wylie</div>
+          <div class="v wylie" id="valWylie">ka</div>
+        </div>
+        <div class="cell" id="cellThl">
+          <div class="k">THL phonetic</div>
+          <div class="v thl" id="valThl">ka</div>
+        </div>
+        <div class="cell full" id="cellDesc">
+          <div class="k">Composition</div>
+          <div class="v desc" id="valDesc">—</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="footer-note">
+    Font: Noto Serif Tibetan (via Google Fonts). THL = Tibetan &amp; Himalayan
+    Library simplified phonetics. Descriptions are learning aids, not exhaustive grammar.
+  </div>
+
+<script>
+/* ============================================================
+   Dataset
+   Each item: { tb: Tibetan glyph, wylie, thl, desc }
+   Sets group items by learning category.
+   ============================================================ */
+
+// The 30 root consonants, in traditional order (8 rows of 4, ha/a end).
+const consonants = [
+  { tb: "ཀ", wylie: "ka",  thl: "ka",  desc: "1st consonant. Unaspirated velar stop /k/. Row 1, column 1." },
+  { tb: "ཁ", wylie: "kha", thl: "kha", desc: "2nd consonant. Aspirated velar /kʰ/. Row 1, column 2." },
+  { tb: "ག", wylie: "ga",  thl: "kha/ga", desc: "3rd consonant. Voiced velar /g/; low tone in speech. Row 1, column 3." },
+  { tb: "ང", wylie: "nga", thl: "nga", desc: "4th consonant. Velar nasal /ŋ/. Row 1, column 4." },
+  { tb: "ཅ", wylie: "ca",  thl: "cha", desc: "5th consonant. Unaspirated palatal /tɕ/. Row 2, column 1." },
+  { tb: "ཆ", wylie: "cha", thl: "chha", desc: "6th consonant. Aspirated palatal /tɕʰ/. Row 2, column 2." },
+  { tb: "ཇ", wylie: "ja",  thl: "chha/ja", desc: "7th consonant. Voiced palatal /dʑ/; low tone. Row 2, column 3." },
+  { tb: "ཉ", wylie: "nya", thl: "nya", desc: "8th consonant. Palatal nasal /ɲ/. Row 2, column 4." },
+  { tb: "ཏ", wylie: "ta",  thl: "ta",  desc: "9th consonant. Unaspirated dental stop /t/. Row 3, column 1." },
+  { tb: "ཐ", wylie: "tha", thl: "tha", desc: "10th consonant. Aspirated dental /tʰ/. Row 3, column 2." },
+  { tb: "ད", wylie: "da",  thl: "tha/da", desc: "11th consonant. Voiced dental /d/; low tone. Row 3, column 3." },
+  { tb: "ན", wylie: "na",  thl: "na",  desc: "12th consonant. Dental nasal /n/. Row 3, column 4." },
+  { tb: "པ", wylie: "pa",  thl: "pa",  desc: "13th consonant. Unaspirated bilabial stop /p/. Row 4, column 1." },
+  { tb: "ཕ", wylie: "pha", thl: "pha", desc: "14th consonant. Aspirated bilabial /pʰ/. Row 4, column 2." },
+  { tb: "བ", wylie: "ba",  thl: "pha/ba", desc: "15th consonant. Voiced bilabial /b/; low tone. Row 4, column 3." },
+  { tb: "མ", wylie: "ma",  thl: "ma",  desc: "16th consonant. Bilabial nasal /m/. Row 4, column 4." },
+  { tb: "ཙ", wylie: "tsa", thl: "tsa", desc: "17th consonant. Unaspirated alveolar affricate /ts/. Row 5, column 1." },
+  { tb: "ཚ", wylie: "tsha", thl: "tsha", desc: "18th consonant. Aspirated affricate /tsʰ/. Row 5, column 2." },
+  { tb: "ཛ", wylie: "dza", thl: "tsha/dza", desc: "19th consonant. Voiced affricate /dz/; low tone. Row 5, column 3." },
+  { tb: "ཝ", wylie: "wa",  thl: "wa",  desc: "20th consonant. Labial approximant /w/. Row 5, column 4." },
+  { tb: "ཞ", wylie: "zha", thl: "zha", desc: "21st consonant. Voiced palatal fricative /ʑ/; low tone. Row 6, column 1." },
+  { tb: "ཟ", wylie: "za",  thl: "za",  desc: "22nd consonant. Voiced alveolar fricative /z/; low tone. Row 6, column 2." },
+  { tb: "འ", wylie: "'a",  thl: "a",   desc: "23rd consonant ('a-chung). Weak voiced /ɦ/; also a prefix & vowel-lengthener. Row 6, column 3." },
+  { tb: "ཡ", wylie: "ya",  thl: "ya",  desc: "24th consonant. Palatal approximant /j/. Row 6, column 4." },
+  { tb: "ར", wylie: "ra",  thl: "ra",  desc: "25th consonant. Alveolar trill/approximant /r/. Row 7, column 1." },
+  { tb: "ལ", wylie: "la",  thl: "la",  desc: "26th consonant. Lateral /l/. Row 7, column 2." },
+  { tb: "ཤ", wylie: "sha", thl: "sha", desc: "27th consonant. Palatal fricative /ɕ/. Row 7, column 3." },
+  { tb: "ས", wylie: "sa",  thl: "sa",  desc: "28th consonant. Alveolar fricative /s/. Row 7, column 4." },
+  { tb: "ཧ", wylie: "ha",  thl: "ha",  desc: "29th consonant. Glottal fricative /h/. Row 8, column 1." },
+  { tb: "ཨ", wylie: "a",   thl: "a",   desc: "30th consonant. Glottal stop / inherent-vowel carrier. Row 8, column 2." }
+];
+
+// Vowel signs applied to a base consonant (here shown on ཨ 'a').
+const vowels = [
+  { tb: "ཨ", wylie: "a", thl: "a", desc: "Inherent vowel 'a'. No sign written — every consonant carries an 'a' by default." },
+  { tb: "ཨི", wylie: "i", thl: "i", desc: "Vowel gigu (ི), written above the consonant. Changes 'a' → 'i'." },
+  { tb: "ཨུ", wylie: "u", thl: "u", desc: "Vowel zhabkyu (ུ), written below the consonant. Changes 'a' → 'u'." },
+  { tb: "ཨེ", wylie: "e", thl: "e", desc: "Vowel drengbu (ེ), written above the consonant. Changes 'a' → 'e'." },
+  { tb: "ཨོ", wylie: "o", thl: "o", desc: "Vowel naro (ོ), written above the consonant. Changes 'a' → 'o'." }
+];
+
+// Vowel signs demonstrated on several bases so the shape is clear.
+const vowelsOnBases = [];
+(function () {
+  const bases = [
+    { tb: "ཀ", w: "k" }, { tb: "མ", w: "m" }, { tb: "ར", w: "r" }, { tb: "ས", w: "s" }
+  ];
+  const marks = [
+    { s: "ི", w: "i", name: "gigu (above)" },
+    { s: "ུ", w: "u", name: "zhabkyu (below)" },
+    { s: "ེ", w: "e", name: "drengbu (above)" },
+    { s: "ོ", w: "o", name: "naro (above)" }
+  ];
+  bases.forEach(b => marks.forEach(m => {
+    vowelsOnBases.push({
+      tb: b.tb + m.s,
+      wylie: b.w + m.w,
+      thl: b.w + m.w,
+      desc: `Base ${b.tb} (${b.w}a) + vowel ${m.name} → '${b.w + m.w}'.`
+    });
+  }));
+})();
+
+// Superscripts (head letters): ར ལ ས stacked ON TOP of a base.
+const superscripts = [
+  { tb: "རྐ", wylie: "rka", thl: "ka", desc: "Superscript ར (ra-go) over ཀ. The ར sits on top; pronounced simply 'ka' (superscript is silent, affects tone)." },
+  { tb: "རྒ", wylie: "rga", thl: "ga", desc: "Superscript ར (ra-go) over ག. Written ར above ག → 'ga' (high tone)." },
+  { tb: "རྔ", wylie: "rnga", thl: "nga", desc: "Superscript ར (ra-go) over ང → 'nga' (high tone)." },
+  { tb: "རྗ", wylie: "rja", thl: "ja", desc: "Superscript ར over ཇ → 'ja'." },
+  { tb: "རྙ", wylie: "rnya", thl: "nya", desc: "Superscript ར over ཉ → 'nya'." },
+  { tb: "རྟ", wylie: "rta", thl: "ta", desc: "Superscript ར over ཏ → 'ta' (high tone)." },
+  { tb: "རྡ", wylie: "rda", thl: "da", desc: "Superscript ར over ད → 'da'." },
+  { tb: "རྣ", wylie: "rna", thl: "na", desc: "Superscript ར over ན → 'na' (high tone)." },
+  { tb: "རྦ", wylie: "rba", thl: "ba", desc: "Superscript ར over བ → 'ba'." },
+  { tb: "རྨ", wylie: "rma", thl: "ma", desc: "Superscript ར over མ → 'ma' (high tone)." },
+  { tb: "ལྐ", wylie: "lka", thl: "ka", desc: "Superscript ལ (la-go) over ཀ → 'ka'." },
+  { tb: "ལྒ", wylie: "lga", thl: "ga", desc: "Superscript ལ (la-go) over ག → 'ga'." },
+  { tb: "ལྟ", wylie: "lta", thl: "ta", desc: "Superscript ལ (la-go) over ཏ → 'ta'." },
+  { tb: "ལྷ", wylie: "lha", thl: "lha", desc: "Superscript ལ over ཧ → 'lha' (voiceless l)." },
+  { tb: "སྐ", wylie: "ska", thl: "ka", desc: "Superscript ས (sa-go) over ཀ → 'ka' (high tone)." },
+  { tb: "སྒ", wylie: "sga", thl: "ga", desc: "Superscript ས (sa-go) over ག → 'ga'." },
+  { tb: "སྔ", wylie: "snga", thl: "nga", desc: "Superscript ས over ང → 'nga' (high tone)." },
+  { tb: "སྤ", wylie: "spa", thl: "pa", desc: "Superscript ས over པ → 'pa'." },
+  { tb: "སྨ", wylie: "sma", thl: "ma", desc: "Superscript ས over མ → 'ma' (high tone)." }
+];
+
+// Subscripts (foot letters): ྱ ྲ ླ ྭ attached BELOW a base.
+const subscripts = [
+  { tb: "ཀྱ", wylie: "kya", thl: "kya", desc: "Subscript ྱ (ya-tak) under ཀ. The ya is written below → 'kya'." },
+  { tb: "ཁྱ", wylie: "khya", thl: "khya", desc: "Subscript ྱ (ya-tak) under ཁ → 'khya'." },
+  { tb: "གྱ", wylie: "gya", thl: "khya/gya", desc: "Subscript ྱ (ya-tak) under ག → 'gya'." },
+  { tb: "པྱ", wylie: "pya", thl: "cha", desc: "Subscript ྱ under པ. p+ya merges → sounds like 'cha'." },
+  { tb: "བྱ", wylie: "bya", thl: "ja", desc: "Subscript ྱ under བ. b+ya → sounds like 'ja'." },
+  { tb: "མྱ", wylie: "mya", thl: "nya", desc: "Subscript ྱ under མ. m+ya → sounds like 'nya'." },
+  { tb: "ཀྲ", wylie: "kra", thl: "tra", desc: "Subscript ྲ (ra-tak) under ཀ → retroflex 'tra'." },
+  { tb: "ཁྲ", wylie: "khra", thl: "thra", desc: "Subscript ྲ (ra-tak) under ཁ → 'thra'." },
+  { tb: "གྲ", wylie: "gra", thl: "thra/dra", desc: "Subscript ྲ (ra-tak) under ག → 'dra'." },
+  { tb: "ཏྲ", wylie: "tra", thl: "tra", desc: "Subscript ྲ under ཏ → retroflex 'tra'." },
+  { tb: "དྲ", wylie: "dra", thl: "dra", desc: "Subscript ྲ under ད → 'dra'." },
+  { tb: "སྲ", wylie: "sra", thl: "sa", desc: "Subscript ྲ under ས → 'sa'." },
+  { tb: "ཀླ", wylie: "kla", thl: "la", desc: "Subscript ླ (la-tak) under ཀ → 'la'." },
+  { tb: "གླ", wylie: "gla", thl: "la", desc: "Subscript ླ (la-tak) under ག → 'la'." },
+  { tb: "ཟླ", wylie: "zla", thl: "da", desc: "Subscript ླ under ཟ → 'da' (irregular)." },
+  { tb: "རླ", wylie: "rla", thl: "la", desc: "Subscript ླ under ར → 'la'." },
+  { tb: "ཀྭ", wylie: "kwa", thl: "ka", desc: "Subscript ྭ (wa-zur) under ཀ. The wa is largely silent → 'ka'." },
+  { tb: "ཁྭ", wylie: "khwa", thl: "kha", desc: "Subscript ྭ (wa-zur) under ཁ → 'kha'." },
+  { tb: "གྭ", wylie: "gwa", thl: "ga", desc: "Subscript ྭ (wa-zur) under ག → 'ga'." },
+  { tb: "ཙྭ", wylie: "tswa", thl: "tsa", desc: "Subscript ྭ (wa-zur) under ཙ → 'tsa'." }
+];
+
+// Prefix letters (sngon 'jug): 5 letters written BEFORE the root.
+const prefixes = [
+  { tb: "ག", wylie: "ga", thl: "(silent)", desc: "Prefix ག (ga-juké). Written before a root letter; usually silent, e.g. གདན 'den'." },
+  { tb: "ད", wylie: "da", thl: "(silent)", desc: "Prefix ད (da-juké). Silent prefix, e.g. དཀར 'kar' (white)." },
+  { tb: "བ", wylie: "ba", thl: "(silent)", desc: "Prefix བ (ba-juké). Silent prefix, e.g. བཀྲ 'tra'." },
+  { tb: "མ", wylie: "ma", thl: "(silent)", desc: "Prefix མ (ma-juké). Silent prefix, e.g. མཁའ 'kha' (sky)." },
+  { tb: "འ", wylie: "'a", thl: "(silent)", desc: "Prefix འ (a-chung). Silent prefix that softens/voices the root, e.g. འགྲོ 'dro'." }
+];
+
+// Suffix letters (rjes 'jug): 10 letters written AFTER the root.
+const suffixes = [
+  { tb: "ག", wylie: "ga", thl: "-k", desc: "Suffix ག. Closes syllable with a /k/ stop, e.g. ལག 'lak' (hand)." },
+  { tb: "ང", wylie: "nga", thl: "-ng", desc: "Suffix ང. Adds nasal /ŋ/, e.g. རང 'rang' (self)." },
+  { tb: "ད", wylie: "da", thl: "-(vowel change)", desc: "Suffix ད. Historically /d/; in modern speech usually silent but shortens vowel, e.g. ཡོད 'yö'." },
+  { tb: "ན", wylie: "na", thl: "-n", desc: "Suffix ན. Adds /n/ and nasalizes vowel, e.g. མིན 'min'." },
+  { tb: "བ", wylie: "ba", thl: "-p", desc: "Suffix བ. Closes with /p/, e.g. ཐབ 'thap'." },
+  { tb: "མ", wylie: "ma", thl: "-m", desc: "Suffix མ. Adds /m/, e.g. ལམ 'lam' (road)." },
+  { tb: "འ", wylie: "'a", thl: "-(long vowel)", desc: "Suffix འ. Silent; lengthens the vowel, e.g. དགའ 'ga'." },
+  { tb: "ར", wylie: "ra", thl: "-r", desc: "Suffix ར. Adds /r/; often the 'to/at' particle, e.g. ཁར 'khar'." },
+  { tb: "ལ", wylie: "la", thl: "-l", desc: "Suffix ལ. Adds /l/; also the 'to' particle, e.g. ཡུལ 'yül'." },
+  { tb: "ས", wylie: "sa", thl: "-(vowel change)", desc: "Suffix ས. Historically /s/; modern speech usually silent, marks agentive/genitive, e.g. ལས 'lé'." }
+];
+
+// Tibetan numerals 0–9.
+const numerals = [
+  { tb: "༠", wylie: "0", thl: "lek kor", desc: "Tibetan digit 0 (klad kor)." },
+  { tb: "༡", wylie: "1", thl: "chik", desc: "Tibetan digit 1 (gcig)." },
+  { tb: "༢", wylie: "2", thl: "nyi", desc: "Tibetan digit 2 (gnyis)." },
+  { tb: "༣", wylie: "3", thl: "sum", desc: "Tibetan digit 3 (gsum)." },
+  { tb: "༤", wylie: "4", thl: "zhi", desc: "Tibetan digit 4 (bzhi)." },
+  { tb: "༥", wylie: "5", thl: "nga", desc: "Tibetan digit 5 (lnga)." },
+  { tb: "༦", wylie: "6", thl: "druk", desc: "Tibetan digit 6 (drug)." },
+  { tb: "༧", wylie: "7", thl: "dün", desc: "Tibetan digit 7 (bdun)." },
+  { tb: "༨", wylie: "8", thl: "gyé", desc: "Tibetan digit 8 (brgyad)." },
+  { tb: "༩", wylie: "9", thl: "gu", desc: "Tibetan digit 9 (dgu)." }
+];
+
+// Punctuation and marks.
+const punctuation = [
+  { tb: "་", wylie: "tsheg", thl: "(dot)", desc: "Tsheg — the syllable separator dot placed after each syllable." },
+  { tb: "།", wylie: "shad", thl: "(bar)", desc: "Shad — vertical stroke marking the end of a phrase/clause." },
+  { tb: "༎", wylie: "nyis shad", thl: "(double bar)", desc: "Double shad — marks the end of a section or verse." },
+  { tb: "༄", wylie: "yig mgo", thl: "(head mark)", desc: "Yig-go / head mark — placed at the start of a text or page." },
+  { tb: "༅", wylie: "yig mgo (2)", thl: "(head mark)", desc: "Ornamental head mark variant beginning a document." }
+];
+
+const SETS = {
+  consonants:   { label: "Root consonants (30)", data: consonants },
+  vowels:       { label: "Vowel signs (on ཨ)", data: vowels },
+  vowelsBases:  { label: "Vowels on various bases", data: vowelsOnBases },
+  superscripts: { label: "Superscripts (head letters)", data: superscripts },
+  subscripts:   { label: "Subscripts (foot letters)", data: subscripts },
+  prefixes:     { label: "Prefixes (sngon-jug)", data: prefixes },
+  suffixes:     { label: "Suffixes (rjes-jug)", data: suffixes },
+  numerals:     { label: "Numerals 0–9", data: numerals },
+  punctuation:  { label: "Punctuation & marks", data: punctuation }
+};
+
+/* ============================================================
+   State + UI wiring
+   ============================================================ */
+const state = {
+  selected: new Set(["consonants"]),
+  flashcard: false,
+  showWylie: true,
+  showThl: true,
+  showDesc: true,
+  current: null,
+  revealed: true
+};
+
+const el = {
+  setList: document.getElementById("setList"),
+  glyph: document.getElementById("glyph"),
+  badgeSet: document.getElementById("badgeSet"),
+  info: document.getElementById("info"),
+  revealHint: document.getElementById("revealHint"),
+  valWylie: document.getElementById("valWylie"),
+  valThl: document.getElementById("valThl"),
+  valDesc: document.getElementById("valDesc"),
+  cellWylie: document.getElementById("cellWylie"),
+  cellThl: document.getElementById("cellThl"),
+  cellDesc: document.getElementById("cellDesc"),
+  nextBtn: document.getElementById("nextBtn"),
+  flashcardToggle: document.getElementById("flashcardToggle"),
+  wylieToggle: document.getElementById("wylieToggle"),
+  thlToggle: document.getElementById("thlToggle"),
+  descToggle: document.getElementById("descToggle")
+};
+
+// Build the set checkboxes.
+Object.entries(SETS).forEach(([key, set]) => {
+  const row = document.createElement("label");
+  row.className = "set-row";
+  row.innerHTML = `
+    <input type="checkbox" value="${key}" ${state.selected.has(key) ? "checked" : ""} />
+    <span class="name">${set.label}</span>
+    <span class="count">${set.data.length}</span>`;
+  const cb = row.querySelector("input");
+  cb.addEventListener("change", () => {
+    if (cb.checked) state.selected.add(key);
+    else state.selected.delete(key);
+    if (state.selected.size === 0) {
+      // never allow empty; re-check this one
+      cb.checked = true;
+      state.selected.add(key);
+    }
+    nextLetter();
+  });
+  el.setList.appendChild(row);
+});
+
+function activePool() {
+  const pool = [];
+  state.selected.forEach(key => {
+    SETS[key].data.forEach(item => pool.push({ ...item, _set: SETS[key].label }));
+  });
+  return pool;
+}
+
+function nextLetter() {
+  const pool = activePool();
+  if (pool.length === 0) return;
+  let pick;
+  // avoid immediate repeat when pool > 1
+  do {
+    pick = pool[Math.floor(Math.random() * pool.length)];
+  } while (pool.length > 1 && state.current && pick.tb === state.current.tb && pick._set === state.current._set);
+  state.current = pick;
+  render();
+}
+
+function render() {
+  const c = state.current;
+  if (!c) return;
+  el.glyph.textContent = c.tb;
+  el.badgeSet.textContent = c._set;
+
+  el.valWylie.textContent = c.wylie;
+  el.valThl.textContent = c.thl;
+  el.valDesc.textContent = c.desc;
+
+  // per-field visibility
+  el.cellWylie.style.display = state.showWylie ? "" : "none";
+  el.cellThl.style.display = state.showThl ? "" : "none";
+  el.cellDesc.style.display = state.showDesc ? "" : "none";
+
+  // flashcard reveal logic
+  if (state.flashcard) {
+    state.revealed = false;
+    el.info.classList.add("hidden");
+    el.revealHint.classList.remove("hidden");
+  } else {
+    state.revealed = true;
+    el.info.classList.remove("hidden");
+    el.revealHint.classList.add("hidden");
+  }
+}
+
+function reveal() {
+  if (!state.flashcard) return;
+  state.revealed = true;
+  el.info.classList.remove("hidden");
+  el.revealHint.classList.add("hidden");
+}
+
+/* Events */
+el.nextBtn.addEventListener("click", nextLetter);
+
+el.flashcardToggle.addEventListener("change", e => {
+  state.flashcard = e.target.checked;
+  render();
+});
+el.wylieToggle.addEventListener("change", e => { state.showWylie = e.target.checked; render(); });
+el.thlToggle.addEventListener("change", e => { state.showThl = e.target.checked; render(); });
+el.descToggle.addEventListener("change", e => { state.showDesc = e.target.checked; render(); });
+
+// Click card / reveal hint: reveal in flashcard mode, else next.
+document.querySelector(".card").addEventListener("click", () => {
+  if (state.flashcard && !state.revealed) reveal();
+  else nextLetter();
+});
+el.revealHint.addEventListener("click", reveal);
+
+// Keyboard: Space/Right = reveal-then-next; R = reveal.
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" || e.code === "ArrowRight") {
+    e.preventDefault();
+    if (state.flashcard && !state.revealed) reveal();
+    else nextLetter();
+  } else if (e.key.toLowerCase() === "r") {
+    reveal();
+  }
+});
+
+// Init
+nextLetter();
+</script>
+</body>
+</html>
