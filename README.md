@@ -61,6 +61,20 @@ translations in `data.js`.
   full syllables.
 - Descriptions are learning aids, not an exhaustive grammar reference.
 
+## References
+
+The two romanization systems used here are documented in these standard references
+(also linked from the app's footer):
+
+- **Wylie transliteration** — Turrell V. Wylie, *"A Standard System of Tibetan
+  Transcription"* (Harvard Journal of Asiatic Studies, 1959), later extended as THL
+  Extended Wylie (EWTS). Overview: [Wylie transliteration](https://en.wikipedia.org/wiki/Wylie_transliteration)
+  · [Umschrift nach Wylie](https://de.wikipedia.org/wiki/Umschrift_nach_Wylie).
+- **THL Simplified Phonetics** — David Germano & Nicolas Tournadre, *"THL Simplified
+  Phonetic Transcription of Standard Tibetan"* (2003). Overview:
+  [THL Simplified Phonetic Transcription](https://en.wikipedia.org/wiki/THL_Simplified_Phonetic_Transcription)
+  · [THDL-Transkription](https://de.wikipedia.org/wiki/THDL-Transkription).
+
 ## License
 
 MIT — see below.

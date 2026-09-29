@@ -21,7 +21,7 @@ const UI = {
     kWylie: "Wylie",
     kThl: "THL-Lautschrift",
     kDesc: "Aufbau",
-    footer: "Schrift: Noto Serif Tibetan (via Google Fonts). THL = vereinfachte Lautschrift der Tibetan &amp; Himalayan Library. Die Beschreibungen sind Lernhilfen, keine vollständige Grammatik."
+    footer: 'Schrift: Noto Serif Tibetan (via Google Fonts). THL = vereinfachte Lautschrift der Tibetan &amp; Himalayan Library. Die Beschreibungen sind Lernhilfen, keine vollständige Grammatik.<br>Referenzen: <a href="https://de.wikipedia.org/wiki/Umschrift_nach_Wylie" target="_blank" rel="noopener">Umschrift nach Wylie</a> · <a href="https://de.wikipedia.org/wiki/THDL-Transkription" target="_blank" rel="noopener">THDL/THL-Transkription</a>'
   },
   en: {
     docTitle: "Tibetan Letter Trainer",
@@ -43,7 +43,7 @@ const UI = {
     kWylie: "Wylie",
     kThl: "THL phonetic",
     kDesc: "Composition",
-    footer: "Font: Noto Serif Tibetan (via Google Fonts). THL = Tibetan &amp; Himalayan Library simplified phonetics. Descriptions are learning aids, not exhaustive grammar."
+    footer: 'Font: Noto Serif Tibetan (via Google Fonts). THL = Tibetan &amp; Himalayan Library simplified phonetics. Descriptions are learning aids, not exhaustive grammar.<br>References: <a href="https://en.wikipedia.org/wiki/Wylie_transliteration" target="_blank" rel="noopener">Wylie transliteration</a> · <a href="https://en.wikipedia.org/wiki/THL_Simplified_Phonetic_Transcription" target="_blank" rel="noopener">THL Simplified Phonetics</a>'
   }
 };
 
