@@ -1,6 +1,6 @@
 # Tibetan Letter Trainer · བོད་ཡིག
 
-A single-file web app for learning the Tibetan script — one glyph at a time.
+A small, build-free web app for learning the Tibetan script — one glyph at a time. Available in **German** (default) and **English**.
 
 **Live demo:** https://michas2.github.io/tibetan-letter-trainer/
 
@@ -19,6 +19,7 @@ A single-file web app for learning the Tibetan script — one glyph at a time.
   - Numerals 0–9
   - Punctuation & marks (tsheg, shad …)
 - **Pronunciation** — both **Wylie** transliteration and **THL** simplified phonetics.
+- **Bilingual UI** — switch between **German** (default) and **English** in the header; the choice is remembered.
 - **Composition descriptions** — how each letter is built (row/column, articulation, how a stack or vowel mark is formed, tone effects).
 - **Flashcard mode** — optionally hide the info and reveal on demand.
 - **Per-field toggles** — independently show/hide Wylie, THL, or the composition text.
@@ -34,9 +35,21 @@ Just open the site, or clone and open `index.html` in any modern browser — the
 
 ## Tech
 
-- Plain HTML + CSS + vanilla JavaScript in a single `index.html`.
-- No frameworks, no build tooling.
+- Plain HTML + CSS + vanilla JavaScript. No frameworks, no build tooling, no dependencies.
 - Deployed via GitHub Pages.
+
+### Project structure
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Markup and layout only. |
+| `styles.css` | All styling. |
+| `i18n.js` | UI strings per language + `DEFAULT_LANG`. |
+| `data.js` | The letter dataset (glyphs, Wylie, THL, bilingual descriptions) and set definitions. |
+| `app.js` | Application logic (state, rendering, events, language switching). |
+
+To add a language, add a key to `UI` in `i18n.js` and provide matching `label`/`desc`
+translations in `data.js`.
 
 ## Notes & caveats
 
