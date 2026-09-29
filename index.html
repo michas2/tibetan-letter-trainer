@@ -46,6 +46,16 @@
         </div>
         <div class="toggle-row">
           <div>
+            <div class="label" id="lblAutoplay">Automatisch abspielen</div>
+            <div class="hint" id="hintAutoplay">Aussprache beim Aufdecken abspielen</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="autoplayToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
             <div class="label" id="lblWylie">Wylie anzeigen</div>
             <div class="hint" id="hintWylie">Transliteration</div>
           </div>
@@ -83,6 +93,9 @@
       <div class="card">
         <div class="badge-set" id="badgeSet">—</div>
         <div class="glyph tibetan" id="glyph">ཀ</div>
+        <button type="button" id="audioBtn" class="audio-btn" hidden aria-label="Aussprache abspielen">
+          <span aria-hidden="true">🔊</span>
+        </button>
       </div>
 
       <div class="reveal-hint hidden" id="revealHint">Tippen oder Leertaste zum Aufdecken</div>
@@ -97,12 +110,7 @@
           <div class="v thl" id="valThl">ka</div>
         </div>
         <div class="cell full" id="cellDesc">
-          <div class="k desc-head">
-            <span id="kDesc">Aufbau</span>
-            <button type="button" id="audioBtn" class="audio-btn" hidden aria-label="Aussprache abspielen">
-              <span aria-hidden="true">🔊</span>
-            </button>
-          </div>
+          <div class="k" id="kDesc">Aufbau</div>
           <div class="v desc" id="valDesc">—</div>
         </div>
       </div>

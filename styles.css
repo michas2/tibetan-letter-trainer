@@ -155,14 +155,14 @@ header .sub { color: var(--muted); font-size: 14px; }
 .info .v.thl { color: var(--accent-2); }
 .info .v.desc { font-size: 15px; font-weight: 400; line-height: 1.5; }
 
-/* Audio (pronunciation) button in the composition cell */
-.desc-head { display: flex; align-items: center; gap: 8px; }
+/* Audio (pronunciation) button — sits on the card, next to the glyph */
 .audio-btn {
+  position: absolute; top: 14px; right: 16px;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; padding: 0; line-height: 1;
-  border: 1px solid var(--border); border-radius: 8px;
+  width: 40px; height: 40px; padding: 0; line-height: 1;
+  border: 1px solid var(--border); border-radius: 10px;
   background: var(--panel-2); color: var(--text);
-  font-size: 14px; cursor: pointer; transition: .15s;
+  font-size: 20px; cursor: pointer; transition: .15s;
 }
 .audio-btn:hover { border-color: var(--accent); }
 .audio-btn.playing { border-color: var(--accent); background: var(--accent); }

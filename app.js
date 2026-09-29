@@ -10,6 +10,7 @@ const state = {
   lang: initialLang(),
   selected: new Set(["consonants"]),
   flashcard: false,
+  autoplay: false,
   showWylie: true,
   showThl: true,
   showDesc: true,
@@ -25,6 +26,8 @@ const el = {
   optionsHeading: document.getElementById("optionsHeading"),
   lblFlashcard: document.getElementById("lblFlashcard"),
   hintFlashcard: document.getElementById("hintFlashcard"),
+  lblAutoplay: document.getElementById("lblAutoplay"),
+  hintAutoplay: document.getElementById("hintAutoplay"),
   lblWylie: document.getElementById("lblWylie"),
   hintWylie: document.getElementById("hintWylie"),
   lblThl: document.getElementById("lblThl"),
@@ -49,6 +52,7 @@ const el = {
   cellThl: document.getElementById("cellThl"),
   cellDesc: document.getElementById("cellDesc"),
   flashcardToggle: document.getElementById("flashcardToggle"),
+  autoplayToggle: document.getElementById("autoplayToggle"),
   wylieToggle: document.getElementById("wylieToggle"),
   thlToggle: document.getElementById("thlToggle"),
   descToggle: document.getElementById("descToggle"),
@@ -67,6 +71,8 @@ function applyLanguage() {
   el.optionsHeading.textContent = t.optionsHeading;
   el.lblFlashcard.textContent = t.lblFlashcard;
   el.hintFlashcard.textContent = t.hintFlashcard;
+  el.lblAutoplay.textContent = t.lblAutoplay;
+  el.hintAutoplay.textContent = t.hintAutoplay;
   el.lblWylie.textContent = t.lblWylie;
   el.hintWylie.textContent = t.hintWylie;
   el.lblThl.textContent = t.lblThl;
@@ -165,6 +171,7 @@ function render() {
     el.revealHint.classList.add("hidden");
   }
   updateAudioButton();
+  maybeAutoplay();
 }
 
 function reveal() {
@@ -173,6 +180,7 @@ function reveal() {
   el.info.classList.remove("hidden");
   el.revealHint.classList.add("hidden");
   updateAudioButton();
+  maybeAutoplay();
 }
 
 /* Audio playback (hotlinked; consonants only) */
@@ -186,17 +194,26 @@ function stopAudio() {
   el.audioBtn.classList.remove("playing");
 }
 
-// Show the audio button only when the current glyph has a recording
-// and the composition cell is actually visible.
+// Whether the "solution" (info) is currently shown: always in normal mode,
+// or after reveal in flashcard mode.
+function solutionShown() {
+  return !state.flashcard || state.revealed;
+}
+
+// Show the audio button whenever the current glyph has a recording and the
+// solution is visible. The button lives on the card, independent of the
+// Wylie/THL/composition field toggles.
 function updateAudioButton() {
   const c = state.current;
-  const url = c && AUDIO[c.tb];
-  const visible = state.showDesc && (!state.flashcard || state.revealed);
-  if (url && visible) {
-    el.audioBtn.hidden = false;
-  } else {
-    el.audioBtn.hidden = true;
-  }
+  const hasAudio = c && AUDIO[c.tb];
+  el.audioBtn.hidden = !(hasAudio && solutionShown());
+}
+
+// Play the current glyph's recording if autoplay is on and audio exists.
+function maybeAutoplay() {
+  if (!state.autoplay) return;
+  const c = state.current;
+  if (c && AUDIO[c.tb] && solutionShown()) playAudio();
 }
 
 function playAudio() {
@@ -222,6 +239,7 @@ function playAudio() {
 el.nextBtn.addEventListener("click", nextLetter);
 
 el.flashcardToggle.addEventListener("change", e => { state.flashcard = e.target.checked; render(); });
+el.autoplayToggle.addEventListener("change", e => { state.autoplay = e.target.checked; });
 el.wylieToggle.addEventListener("change", e => { state.showWylie = e.target.checked; render(); });
 el.thlToggle.addEventListener("change", e => { state.showThl = e.target.checked; render(); });
 el.descToggle.addEventListener("change", e => { state.showDesc = e.target.checked; render(); });
