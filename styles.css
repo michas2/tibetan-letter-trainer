@@ -157,7 +157,7 @@ header .sub { color: var(--muted); font-size: 14px; }
 }
 .glyph {
   font-size: clamp(120px, 22vw, 240px);
-  line-height: 1.4;
+  line-height: 1;
   color: #fff;
   text-shadow: 0 6px 30px rgba(124,156,255,.25);
 }
