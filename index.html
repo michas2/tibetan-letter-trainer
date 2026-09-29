@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-  href="https://fonts.googleapis.com/css2?family=Noto+Serif+Tibetan:wght@400;600&family=Inter:wght@400;500;600&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Noto+Serif+Tibetan:wght@400;600&family=Uchen&family=Inter:wght@400;500;600&display=swap"
   rel="stylesheet"
 />
 <link rel="stylesheet" href="styles.css" />
@@ -34,6 +34,15 @@
 
       <div style="margin-top:16px">
         <h2 data-i18n="optionsHeading">Optionen</h2>
+        <div class="select-row">
+          <label class="label" for="fontSelect" data-i18n="lblFont">Schriftart</label>
+          <select id="fontSelect" class="select">
+            <option value="noto">Noto Serif Tibetan</option>
+            <option value="amdo">Amdo Classic</option>
+            <option value="rinzin">DDC Rinzin</option>
+            <option value="uchen">Uchen</option>
+          </select>
+        </div>
         <div class="toggle-row">
           <div>
             <div class="label" data-i18n="lblFlashcard">Karteikarten-Modus</div>

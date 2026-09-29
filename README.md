@@ -20,6 +20,7 @@ A small, build-free web app for learning the Tibetan script — one glyph at a t
   - Punctuation & marks (tsheg, shad …)
 - **Pronunciation** — both **Wylie** transliteration and **THL** simplified phonetics.
 - **Bilingual UI** — switch between **German** (default) and **English** in the header; the choice is remembered.
+- **Selectable font** — choose between four Tibetan typefaces: Noto Serif Tibetan and Uchen (via Google Fonts), plus Amdo Classic and DDC Rinzin (self-referenced from the [OpenPecha Tibetan fonts](https://github.com/OpenPecha/tibetan-fonts) collection via jsDelivr).
 - **Composition descriptions** — how each letter is built (row/column, articulation, how a stack or vowel mark is formed, tone effects).
 - **Flashcard mode** — optionally hide the info and reveal on demand.
 - **Per-field toggles** — independently show/hide Wylie, THL, or the composition text.

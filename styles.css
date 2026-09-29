@@ -20,8 +20,26 @@ body {
   padding: 24px;
 }
 .tibetan {
-  font-family: "Noto Serif Tibetan", "Noto Sans Tibetan", "Jomolhari",
+  font-family: "Noto Serif Tibetan", "Noto Sans Tibetan", "Uchen",
     "Tibetan Machine Uni", serif;
+}
+/* Selectable glyph fonts (applied to #glyph). Each falls back to the stack. */
+.font-noto      { font-family: "Noto Serif Tibetan", "Uchen", serif; }
+.font-uchen     { font-family: "Uchen", "Noto Serif Tibetan", serif; }
+.font-amdo      { font-family: "TLT Amdo Classic", "Noto Serif Tibetan", serif; }
+.font-rinzin    { font-family: "TLT DDC Rinzin", "Noto Serif Tibetan", serif; }
+
+/* Extra Tibetan fonts self-referenced from a font CDN (jsDelivr / OpenPecha).
+   Loaded on demand via font-display:swap so the app never blocks on them. */
+@font-face {
+  font-family: "TLT Amdo Classic";
+  src: url("https://cdn.jsdelivr.net/gh/OpenPecha/tibetan-fonts@main/Unicode%20Font%20Families%20%26%20Typefaces/Amdo%20Claasic/amdo_classic_1.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TLT DDC Rinzin";
+  src: url("https://cdn.jsdelivr.net/gh/OpenPecha/tibetan-fonts@main/Unicode%20Font%20Families%20%26%20Typefaces/Dzongkha%20fonts/DDC/DDC%20Rinzin.ttf") format("truetype");
+  font-display: swap;
 }
 header {
   max-width: 1100px;
@@ -93,6 +111,19 @@ header .sub { color: var(--muted); font-size: 14px; }
 .toggle-row:first-of-type { border-top: none; }
 .toggle-row .label { font-size: 14px; }
 .toggle-row .hint { font-size: 12px; color: var(--muted); }
+
+/* Font selector row */
+.select-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 0;
+}
+.select-row .label { font-size: 14px; }
+.select {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; font-size: 13px; cursor: pointer;
+}
+.select:focus { outline: none; border-color: var(--accent); }
 
 .switch { position: relative; width: 46px; height: 26px; flex: none; }
 .switch input { opacity: 0; width: 0; height: 0; }

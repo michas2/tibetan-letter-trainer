@@ -26,6 +26,7 @@ function loadPersisted() {
 function savePersisted() {
   const data = {
     lang: state.lang,
+    font: state.font,
     selected: [...state.selected],
     flashcard: state.flashcard,
     autoplay: state.autoplay,
@@ -43,6 +44,15 @@ function savePersisted() {
 /* ---------- State ---------- */
 const persisted = loadPersisted();
 
+// Selectable glyph fonts: value -> CSS class on #glyph (see styles.css).
+const FONTS = {
+  noto: "font-noto",
+  amdo: "font-amdo",
+  rinzin: "font-rinzin",
+  uchen: "font-uchen"
+};
+const DEFAULT_FONT = "noto";
+
 function initialLang() {
   const l = persisted.lang;
   return l === "de" || l === "en" ? l : DEFAULT_LANG;
@@ -57,6 +67,7 @@ function initialSelected() {
 
 const state = {
   lang: initialLang(),
+  font: FONTS[persisted.font] ? persisted.font : DEFAULT_FONT,
   selected: initialSelected(),
   flashcard: persisted.flashcard ?? false,
   autoplay: persisted.autoplay ?? true,
@@ -70,6 +81,7 @@ const state = {
 /* ---------- Stable element references ---------- */
 const el = {
   langSwitch: byId("langSwitch"),
+  fontSelect: byId("fontSelect"),
   setList: byId("setList"),
   nextBtn: byId("nextBtn"),
   card: $(".card"),
@@ -170,6 +182,12 @@ function nextLetter() {
   );
   state.current = pick;
   render();
+}
+
+// Apply the selected glyph font by swapping the font-* class on #glyph.
+function applyFont() {
+  Object.values(FONTS).forEach(cls => el.glyph.classList.remove(cls));
+  el.glyph.classList.add(FONTS[state.font]);
 }
 
 /* ---------- Rendering ---------- */
@@ -275,6 +293,13 @@ $$("[data-toggle]").forEach(cb => {
 
 el.audioBtn.addEventListener("click", playAudio);
 
+el.fontSelect.value = state.font;
+el.fontSelect.addEventListener("change", () => {
+  state.font = FONTS[el.fontSelect.value] ? el.fontSelect.value : DEFAULT_FONT;
+  applyFont();
+  savePersisted();
+});
+
 el.card.addEventListener("click", () => {
   if (state.flashcard && !state.revealed) reveal();
   else nextLetter();
@@ -303,5 +328,6 @@ document.addEventListener("keydown", e => {
 /* ---------- Init ---------- */
 buildSetList();
 applyLanguage();
+applyFont();
 nextLetter();
 })();
