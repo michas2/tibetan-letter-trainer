@@ -164,3 +164,39 @@ const SETS = {
   numerals:     { label: { en: "Numerals 0–9", de: "Ziffern 0–9" }, data: numerals },
   punctuation:  { label: { en: "Punctuation & marks", de: "Satz- & Sonderzeichen" }, data: punctuation }
 };
+
+// Hotlinked pronunciation audio (root consonants only) from tibetan101.com.
+// POC only — to be replaced by self-hosted recordings later. Attribution in footer.
+// Keyed by the base Tibetan consonant glyph.
+const AUDIO = {
+  "ཀ": "https://tibetan101.com/wp-content/uploads/2021/04/ཀ་.wav",
+  "ཁ": "https://tibetan101.com/wp-content/uploads/2021/04/ཁ་.wav",
+  "ག": "https://tibetan101.com/wp-content/uploads/2021/04/ག་.wav",
+  "ང": "https://tibetan101.com/wp-content/uploads/2021/04/ང་།.wav",
+  "ཅ": "https://tibetan101.com/wp-content/uploads/2021/04/ཅ་.wav",
+  "ཆ": "https://tibetan101.com/wp-content/uploads/2021/04/ཆ་.wav",
+  "ཇ": "https://tibetan101.com/wp-content/uploads/2021/04/ཇ་.wav",
+  "ཉ": "https://tibetan101.com/wp-content/uploads/2021/04/ཉ།.wav",
+  "ཏ": "https://tibetan101.com/wp-content/uploads/2021/04/ཏ་.wav",
+  "ཐ": "https://tibetan101.com/wp-content/uploads/2021/04/ཐ་.wav",
+  "ད": "https://tibetan101.com/wp-content/uploads/2021/04/ད་.wav",
+  "ན": "https://tibetan101.com/wp-content/uploads/2021/04/ན།.wav",
+  "པ": "https://tibetan101.com/wp-content/uploads/2021/04/པ་.wav",
+  "ཕ": "https://tibetan101.com/wp-content/uploads/2021/04/ཕ་.wav",
+  "བ": "https://tibetan101.com/wp-content/uploads/2021/04/བ་.wav",
+  "མ": "https://tibetan101.com/wp-content/uploads/2021/04/མ།.wav",
+  "ཙ": "https://tibetan101.com/wp-content/uploads/2021/04/ཙ་.wav",
+  "ཚ": "https://tibetan101.com/wp-content/uploads/2021/04/ཚ་.wav",
+  "ཛ": "https://tibetan101.com/wp-content/uploads/2021/04/ཛ་.wav",
+  "ཝ": "https://tibetan101.com/wp-content/uploads/2021/04/ཝ།.wav",
+  "ཞ": "https://tibetan101.com/wp-content/uploads/2021/04/ཞ་.wav",
+  "ཟ": "https://tibetan101.com/wp-content/uploads/2021/04/ཟ་.wav",
+  "འ": "https://tibetan101.com/wp-content/uploads/2021/04/འ་.wav",
+  "ཡ": "https://tibetan101.com/wp-content/uploads/2021/04/ཡ།.wav",
+  "ར": "https://tibetan101.com/wp-content/uploads/2021/04/ར་.wav",
+  "ལ": "https://tibetan101.com/wp-content/uploads/2021/04/ལ་.wav",
+  "ཤ": "https://tibetan101.com/wp-content/uploads/2021/04/ཤ་.wav",
+  "ས": "https://tibetan101.com/wp-content/uploads/2021/04/ས།.wav",
+  "ཧ": "https://tibetan101.com/wp-content/uploads/2021/04/ཧ་.wav",
+  "ཨ": "https://tibetan101.com/wp-content/uploads/2021/04/ཨ།.wav"
+};

@@ -36,6 +36,7 @@ const el = {
   kWylie: document.getElementById("kWylie"),
   kThl: document.getElementById("kThl"),
   kDesc: document.getElementById("kDesc"),
+  audioBtn: document.getElementById("audioBtn"),
   footerNote: document.getElementById("footerNote"),
   setList: document.getElementById("setList"),
   glyph: document.getElementById("glyph"),
@@ -77,6 +78,8 @@ function applyLanguage() {
   el.kWylie.textContent = t.kWylie;
   el.kThl.textContent = t.kThl;
   el.kDesc.textContent = t.kDesc;
+  el.audioBtn.setAttribute("aria-label", t.audioLabel);
+  el.audioBtn.title = t.audioLabel;
   el.footerNote.innerHTML = t.footer;
 
   el.langSwitch.querySelectorAll("button").forEach(b => {
@@ -140,6 +143,7 @@ function nextLetter() {
 function render() {
   const c = state.current;
   if (!c) return;
+  stopAudio();
   el.glyph.textContent = c.tb;
   el.badgeSet.textContent = SETS[c._setKey].label[state.lang];
 
@@ -160,6 +164,7 @@ function render() {
     el.info.classList.remove("hidden");
     el.revealHint.classList.add("hidden");
   }
+  updateAudioButton();
 }
 
 function reveal() {
@@ -167,6 +172,50 @@ function reveal() {
   state.revealed = true;
   el.info.classList.remove("hidden");
   el.revealHint.classList.add("hidden");
+  updateAudioButton();
+}
+
+/* Audio playback (hotlinked; consonants only) */
+let currentAudio = null;
+
+function stopAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  el.audioBtn.classList.remove("playing");
+}
+
+// Show the audio button only when the current glyph has a recording
+// and the composition cell is actually visible.
+function updateAudioButton() {
+  const c = state.current;
+  const url = c && AUDIO[c.tb];
+  const visible = state.showDesc && (!state.flashcard || state.revealed);
+  if (url && visible) {
+    el.audioBtn.hidden = false;
+  } else {
+    el.audioBtn.hidden = true;
+  }
+}
+
+function playAudio() {
+  const c = state.current;
+  const url = c && AUDIO[c.tb];
+  if (!url) return;
+  stopAudio();
+  const audio = new Audio(url);
+  currentAudio = audio;
+  el.audioBtn.classList.add("playing");
+  audio.addEventListener("ended", () => {
+    if (currentAudio === audio) stopAudio();
+  });
+  audio.addEventListener("error", () => {
+    if (currentAudio === audio) stopAudio();
+  });
+  audio.play().catch(() => {
+    if (currentAudio === audio) stopAudio();
+  });
 }
 
 /* Events */
@@ -176,6 +225,11 @@ el.flashcardToggle.addEventListener("change", e => { state.flashcard = e.target.
 el.wylieToggle.addEventListener("change", e => { state.showWylie = e.target.checked; render(); });
 el.thlToggle.addEventListener("change", e => { state.showThl = e.target.checked; render(); });
 el.descToggle.addEventListener("change", e => { state.showDesc = e.target.checked; render(); });
+
+el.audioBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  playAudio();
+});
 
 document.querySelector(".card").addEventListener("click", () => {
   if (state.flashcard && !state.revealed) reveal();
