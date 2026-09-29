@@ -191,13 +191,16 @@ function applyFont() {
   centerGlyph();
 }
 
-// Center the glyph by its actual rendered position, not font metrics.
-// Different Tibetan fonts place the glyph at different heights within the line
-// box, so we measure where the ink actually is on screen (via a Range over the
-// text) and translate the glyph so that box is centered in the card. This makes
-// no assumptions about a font's ascent/descent and works for stacked glyphs.
-// Deferred to the next frame so measurement happens after layout.
+// Center the glyph by its true ink box, not the font line box.
+// Tibetan stacks and above-base vowels (e.g. སི) put all the ink above the
+// baseline, so the line box (which the browser centers) leaves the visible
+// glyph sitting too high. We compute the glyph's actual ink center on screen
+// from canvas ink metrics and the rendered baseline, then translate so the ink
+// center lands at the card center. Deferred to next frame to measure post-layout.
+const _measureCanvas = document.createElement("canvas");
+const _measureCtx = _measureCanvas.getContext("2d");
 let _centerRaf = 0;
+
 function centerGlyph() {
   if (_centerRaf) cancelAnimationFrame(_centerRaf);
   _centerRaf = requestAnimationFrame(_centerGlyphNow);
@@ -205,22 +208,42 @@ function centerGlyph() {
 
 function _centerGlyphNow() {
   _centerRaf = 0;
-  if (!el.glyph.firstChild) return;
-  // Clear any prior offset so we measure the natural position.
+  const ch = el.glyph.firstChild && el.glyph.textContent;
+  if (!ch || !_measureCtx) return;
+
   el.glyph.style.transform = "";
-  let inkRect;
+
+  // 1) Line box on screen (Range gives the rendered line box for the text).
+  let lineRect;
   try {
     const range = document.createRange();
     range.selectNodeContents(el.glyph);
-    inkRect = range.getBoundingClientRect();
+    lineRect = range.getBoundingClientRect();
   } catch {
     return;
   }
-  if (!inkRect || !inkRect.height) return;
+  if (!lineRect || !lineRect.height) return;
+
+  // 2) Where is the baseline inside that line box? Use the font metrics: the
+  //    line box top-to-baseline distance is halfLeading + fontAscent.
+  const cs = getComputedStyle(el.glyph);
+  const fontPx = parseFloat(cs.fontSize);
+  _measureCtx.font = `${cs.fontWeight} ${fontPx}px ${cs.fontFamily}`;
+  _measureCtx.textBaseline = "alphabetic";
+  const m = _measureCtx.measureText(ch);
+  const fAsc = m.fontBoundingBoxAscent, fDesc = m.fontBoundingBoxDescent;
+  const inkAsc = m.actualBoundingBoxAscent, inkDesc = m.actualBoundingBoxDescent;
+  if (![fAsc, fDesc, inkAsc, inkDesc].every(isFinite)) return;
+
+  // The line box height equals fAsc+fDesc (the font's own line box); Range
+  // reports exactly that, so baseline is fAsc below the line-box top.
+  const baselineY = lineRect.top + fAsc;
+  // True ink center sits (inkAsc - inkDesc)/2 above the baseline.
+  const inkCenterY = baselineY - (inkAsc - inkDesc) / 2;
+
   const cardRect = el.card.getBoundingClientRect();
   const cardCenter = cardRect.top + cardRect.height / 2;
-  const inkCenter = inkRect.top + inkRect.height / 2;
-  const shift = cardCenter - inkCenter; // move glyph down by this to center ink
+  const shift = cardCenter - inkCenterY;
   el.glyph.style.transform = `translateY(${shift.toFixed(1)}px)`;
 }
 
